@@ -75,7 +75,11 @@ class Transform2dHomogeneous:
         """Create a new rotation matrix., rotation is in degrees."""
         return cls.new_rotation_matrix(math.radians(rotation_deg))
     
-        
+    def chain(self, other:Transform2dHomogeneous) -> Transform2dHomogeneous:
+        """Return a new transformation matrix that is the result of applying `other` after this matrix."""
+        mat = Transform2dHomogeneous()
+        mat.matrix = self.matrix @ other.matrix
+        return mat
 
     def chain_translate(self, translation:Vec2) -> Transform2dHomogeneous:
         """Return a new transformation matrix that is the result of translating by `translation`."""
@@ -98,8 +102,8 @@ class Transform2dHomogeneous:
     
     def get_point(self) -> Vec2:
         """Get the coordinates of point (0,0) when transformed by this matrix."""
-        point = Transform2dHomogeneous.new_translation_matrix(Vec2(0, 0))
-        point.matrix = self.matrix @ point.matrix
-        return Vec2(point.matrix[0, 2], point.matrix[1, 2])
+        point = np.array([0, 0, 1])
+        point = self.matrix @ point
+        return Vec2(point[0], point[1])
 
         
