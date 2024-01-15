@@ -95,5 +95,11 @@ class Transform2dHomogeneous:
     def chain_rotate_deg(self, rotation_deg:float) -> Transform2dHomogeneous:
         """Return a new transformation matrix that is the result of rotating by `rotation_deg` degrees."""
         return self.chain_rotate(math.radians(rotation_deg))
+    
+    def get_point(self) -> Vec2:
+        """Get the coordinates of point (0,0) when transformed by this matrix."""
+        point = Transform2dHomogeneous.new_translation_matrix(Vec2(0, 0))
+        point.matrix = self.matrix @ point.matrix
+        return Vec2(point.matrix[0, 2], point.matrix[1, 2])
 
         
