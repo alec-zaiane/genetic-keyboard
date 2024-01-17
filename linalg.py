@@ -2,6 +2,7 @@
 from __future__ import annotations
 import math
 import numpy as np
+from numpy.typing import NDArray
 
 class Vec2:
     """2d vector
@@ -36,6 +37,15 @@ class Vec2:
     
     def __str__(self):
         return f"Vec2({self.x}, {self.y})"
+    
+    def to_homogenous_matrix(self) -> Transform2dHomogeneous:
+        return Transform2dHomogeneous.new_translation_matrix(self)
+    
+    def to_homogenous_point(self) -> NDArray[np.float64]:
+        return np.array([self.x, self.y, 1])
+    
+    def to_tuple(self) -> tuple[float, float]:
+        return (self.x, self.y)
     
     @classmethod
     def unit_vector(cls, angle:float) -> Vec2:
@@ -100,10 +110,17 @@ class Transform2dHomogeneous:
         """Return a new transformation matrix that is the result of rotating by `rotation_deg` degrees."""
         return self.chain_rotate(math.radians(rotation_deg))
     
-    def get_point(self) -> Vec2:
-        """Get the coordinates of point (0,0) when transformed by this matrix."""
-        point = np.array([0, 0, 1])
-        point = self.matrix @ point
-        return Vec2(point[0], point[1])
+    def multiply_point(self, point:Vec2) -> Vec2:
+        """Get the coordinates of `point` when transformed by this matrix."""
+        pointhomog = point.to_homogenous_point()
+        pointhomog = self.matrix @ pointhomog
+        return Vec2(pointhomog[0], pointhomog[1])
+    
+    def __matmul__(self, other: Transform2dHomogeneous) -> Transform2dHomogeneous:
+        m = Transform2dHomogeneous()
+        other_matrix = other.matrix
+        m.matrix = self.matrix @ other_matrix
+        return m
+    
 
         
